@@ -3,18 +3,19 @@ $project = "C:\Projetos\mrv-bot"
 $python = "$project\.venv\Scripts\python.exe"
 $script = "$project\mrv_bot.py"
 $xml = "$project\saida.xml"
+$git = "C:\Program Files\Git\bin\git.exe"
 
-# Ativar TLS moderno para push via HTTPS (se usado)
+# TLS moderno
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-# Executar o crawler
+# Executar crawler
 & $python $script
 
-# Verificar se o XML foi gerado
+# Verificar XML
 if (Test-Path $xml) {
     Set-Location $project
-    git add $xml
+    & $git add $xml
     $msg = "Atualização automática do XML em " + (Get-Date -Format "yyyy-MM-dd HH:mm")
-    git commit -m $msg
-    git push origin main
+    & $git commit -m "$msg"
+    & $git push origin main
 }
