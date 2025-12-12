@@ -5,8 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
-import time
-import os
 
 print("Iniciando crawler...")
 
@@ -24,14 +22,14 @@ driver.set_page_load_timeout(30)
 
 try:
     print("Abrindo página alvo...")
-    driver.get("https://www.mrv.com.br/imoveis")  # URL real que você já usava
+    driver.get("https://www.mrv.com.br/imoveis/sao-paulo")
     print("Página carregada com sucesso!")
 
-    # Espera até que os elementos dos imóveis estejam presentes
+    # Espera até que os cards estejam presentes
     WebDriverWait(driver, 15).until(
-        EC.presence_of_all_elements_located((By.CLASS_NAME, "card-imovel"))  # ajuste conforme seletor real
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "card-button"))
     )
-    print("Elementos de imóveis detectados!")
+    print("Cards detectados!")
 
     # Captura do HTML
     html = driver.page_source
@@ -41,20 +39,23 @@ try:
     soup = BeautifulSoup(html, "lxml")
     print("Parsing concluído!")
 
-    # Busca pelos imóveis (ajuste conforme seletor real que você já tinha)
-    imoveis = soup.find_all("div", class_="card-imovel")
-    print(f"Encontrados {len(imoveis)} imóveis.")
+    # Busca pelos botões dos cards
+    cards = soup.find_all("div", class_="card-button")
+    print(f"Encontrados {len(cards)} imóveis.")
 
-    # Processamento dos imóveis
-    for idx, imovel in enumerate(imoveis, start=1):
-        titulo = imovel.find("h2").get_text(strip=True) if imovel.find("h2") else "Sem título"
-        cidade = imovel.find("span", class_="cidade").get_text(strip=True) if imovel.find("span", class_="cidade") else "Sem cidade"
-        print(f"[{idx}] {titulo} - {cidade}")
+    # Processamento dos cards
+    for idx, card in enumerate(cards, start=1):
+        # Texto do botão
+        botao = card.get_text(strip=True)
 
-    # Aqui você mantém a lógica de salvar no XML (saida.xml)
-    # Exemplo:
-    # with open("saida.xml", "w", encoding="utf-8") as f:
-    #     f.write(gerar_xml(imoveis))
+        # Imagem associada ao card
+        imagem = card.find_next("img", class_="card-image")
+        imagem_src = imagem["src"] if imagem else "Sem imagem"
+
+        # Link da página do imóvel (pai <a>)
+        link = card.find_parent("a")["href"] if card.find_parent("a") else "Sem link"
+
+        print(f"[{idx}] Botão: {botao} | Imagem: {imagem_src} | Link: {link}")
 
     print("Processamento concluído, saída gerada!")
 
