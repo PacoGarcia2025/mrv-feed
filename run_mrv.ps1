@@ -1,21 +1,29 @@
-# Caminhos
-$project = "C:\Projetos\mrv-bot"
-$python = "$project\.venv\Scripts\python.exe"
-$script = "$project\mrv_bot.py"
-$xml = "$project\saida.xml"
-$git = "C:\Program Files\Git\bin\git.exe"
+Write-Output "===== Iniciando execução do script MRV ====="
 
-# TLS moderno
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+# Caminho do Python dentro do ambiente virtual
+$pythonPath = "C:\Projetos\mrv-bot\.venv\Scripts\python.exe"
+# Caminho do script Python
+$scriptPath = "C:\Projetos\mrv-bot\mrv_bot.py"
 
-# Executar crawler
-& $python $script
+Write-Output "Executando crawler Python..."
+& $pythonPath $scriptPath
 
-# Verificar XML
-if (Test-Path $xml) {
-    Set-Location $project
-    & $git add $xml
-    $msg = "Atualização automática do XML em " + (Get-Date -Format "yyyy-MM-dd HH:mm")
-    & $git commit -m "$msg"
-    & $git push origin main
-}
+Write-Output "Crawler finalizado. Verificando saída..."
+
+# Caminho do repositório
+$repoPath = "C:\Projetos\mrv-bot"
+Set-Location $repoPath
+
+Write-Output "Adicionando arquivos ao Git..."
+& "C:\Program Files\Git\bin\git.exe" add .
+
+Write-Output "Criando commit..."
+& "C:\Program Files\Git\bin\git.exe" commit -m "Atualização automática via run_mrv.ps1"
+
+Write-Output "Enviando para o GitHub..."
+& "C:\Program Files\Git\bin\git.exe" push origin main
+
+Write-Output "===== Execução concluída com sucesso ====="
+
+# Força o encerramento do PowerShell
+exit
